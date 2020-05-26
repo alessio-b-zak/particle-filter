@@ -1,0 +1,116 @@
+---
+title: "test_particle_filter"
+author: "Alessio Zakaria"
+date: "21 May 2020"
+output: pdf_document
+---
+
+```{r}
+library(RcppArmadillo)
+library(Rcpp)
+```
+
+Generate data
+```{r}
+n <- 763
+
+#y <- sample.int(100, n, replace = TRUE)
+#df <- data.frame(B=y, tim = seq(n))
+
+nparticles <-  1000
+initial_state <- c(n-1, 1, 0)
+params <- c(n, 1, 1, 1, 1)
+```
+
+```{r}
+sourceCpp("/home/alessio/Documents/uni/phd/grp-proj-2/intractable_models_project/pmcmc/particle.cpp")
+```
+  
+```{r}
+p <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+```
+
+We test the results of our particle filter against the pomp particle filter to see if we achieve the same results
+
+```{r}
+library(pomp)
+
+sir_step <- pomp::Csnippet("
+  double N = 763;
+  double dN_SI = rbinom(S,1-exp(-(Beta*I*dt)/N));
+  double dN_IR = rbinom(I,1-exp(-gamma*dt));
+  S -= dN_SI;
+  I += dN_SI - dN_IR;
+  R += dN_IR;
+")
+
+rmeas  <- pomp::Csnippet("B = rpois(rho * I+1e-6);")
+
+dmeas <- pomp::Csnippet("
+  lik = dpois(B, rho*I+1e-6, give_log);
+")
+
+sir_init <- pomp::Csnippet("
+  S = 762;
+  I = 1;
+  R = 0;
+")
+
+sir <- pomp(subset(bsflu, select=-C),
+     times="day", 
+     t0=0, 
+     rprocess=euler(sir_step, delta.t=1), 
+     rinit = sir_init, 
+     rmeasure= rmeas, 
+     dmeasure=dmeas,
+     statenames=c("S", "I", "R"),
+     paramnames = c("Beta", "gamma", "rho")
+   )
+```
+
+```{r}
+pf <-  logLik(pfilter(sir, Np=1000, params=c(Beta=1, rho=1, gamma=1)))
+```
+
+```{r}
+sourceCpp("/home/alessio/Documents/uni/phd/grp-proj-2/intractable_models_project/pmcmc/omp.cpp")
+```
+
+```{r}
+n <- 100
+```
+
+
+```{r}
+pfCpp <- function() {
+   v <- vector() 
+   for(i in 1:n) {
+     v[[i]] <- particleFilterCpp(pomp::bsflu$B, params, nparticles, initial_state)
+   }
+   return(v)
+}
+```
+
+```{r}
+pfCppomp <- function(x) {
+  v <- vector()
+  for(i in 1:n) {
+    v[[i]] <- particleFilterCppOMP(pomp::bsflu$B, params, nparticles, initial_state)
+  }
+  return(v)
+}
+```
+
+
+
+
+```{r}
+library(microbenchmark)
+microbenchmark(pfCppomp(), pfCpp())
+
+```
+  
+  
+```{r}
+evalCpp(k)
+```
