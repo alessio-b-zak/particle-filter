@@ -1,0 +1,104 @@
+Total: 77 samples
+       7   9.1%   9.1%        7   9.1% Rcpp::MatrixColumn::operator= (inline)
+       7   9.1%  18.2%        7   9.1% Rf_getAttrib
+       4   5.2%  23.4%       10  13.0% boost::random::binomial_distribution::init (inline)
+       4   5.2%  28.6%       30  39.0% simulateTransition
+       3   3.9%  32.5%        3   3.9% 00007f3c18051ce9
+       3   3.9%  36.4%        5   6.5% Rcpp::sugar::WalkerSample (inline)
+       3   3.9%  40.3%       12  15.6% Rf_dpois_raw
+       2   2.6%  42.9%        2   2.6% 00007f3c17ffe8af
+       2   2.6%  45.5%        2   2.6% 00007f3c18051c22
+       2   2.6%  48.1%        2   2.6% 00007f3c18051d2d
+       2   2.6%  50.6%       10  13.0% Rcpp::Vector::dims (inline)
+       2   2.6%  53.2%        2   2.6% Rf_revsort
+       2   2.6%  55.8%        3   3.9% boost::random::binomial_distribution::invert (inline)
+       2   2.6%  58.4%        2   2.6% sitmo::prng_engine::encrypt_counter (inline)
+       1   1.3%  59.7%        1   1.3% 00007f3c17ff9eae
+       1   1.3%  61.0%        1   1.3% 00007f3c17ffeb59
+       1   1.3%  62.3%        1   1.3% 00007f3c17ffebbb
+       1   1.3%  63.6%        1   1.3% 00007f3c1800e5e9
+       1   1.3%  64.9%        1   1.3% 00007f3c1800ed80
+       1   1.3%  66.2%        1   1.3% 00007f3c1800fb23
+       1   1.3%  67.5%        1   1.3% 00007f3c18051bb7
+       1   1.3%  68.8%        1   1.3% 00007f3c18051ccc
+       1   1.3%  70.1%        1   1.3% 00007f3c18051d25
+       1   1.3%  71.4%        1   1.3% 00007f3c18051d29
+       1   1.3%  72.7%        1   1.3% 00007f3c180526a4
+       1   1.3%  74.0%        1   1.3% 00007f3c180526ef
+       1   1.3%  75.3%        1   1.3% 00007f3c18052729
+       1   1.3%  76.6%        1   1.3% 00007f3c18052765
+       1   1.3%  77.9%        1   1.3% 00007f3c18052789
+       1   1.3%  79.2%        1   1.3% 00007f3c1805278d
+       1   1.3%  80.5%        1   1.3% 00007f3c18052791
+       1   1.3%  81.8%        1   1.3% 00007f3c1805281f
+       1   1.3%  83.1%        1   1.3% Rcpp::sugar::Max::operator double (inline)
+       1   1.3%  84.4%        1   1.3% Rcpp::sugar::Normalize (inline)
+       1   1.3%  85.7%        1   1.3% Rf_isVector
+       1   1.3%  87.0%        1   1.3% __exp1 (inline)
+       1   1.3%  88.3%        1   1.3% __nss_passwd_lookup
+       1   1.3%  89.6%        4   5.2% boost::random::binomial_distribution::generate
+       1   1.3%  90.9%        2   2.6% boost::random::binomial_distribution::generate (inline)
+       1   1.3%  92.2%       10  13.0% boost::random::binomial_distribution::operator (inline)
+       1   1.3%  93.5%        1   1.3% norm_rand
+       1   1.3%  94.8%        1   1.3% sitmo::prng_engine::encrypt_counter
+       1   1.3%  96.1%        4   5.2% sitmo::prng_engine::operator (inline)
+       1   1.3%  97.4%        1   1.3% std::__fill_a (inline)
+       1   1.3%  98.7%        1   1.3% std::vector::operator[] (inline)
+       1   1.3% 100.0%        1   1.3% unif_rand
+       0   0.0% 100.0%        2   2.6% 00007f3c17ffeb66
+       0   0.0% 100.0%       11  14.3% 00007f3c1800e5ce
+       0   0.0% 100.0%        6   7.8% 00007f3c1800ee53
+       0   0.0% 100.0%       77 100.0% 0x00000000006a0f78
+       0   0.0% 100.0%       77 100.0% 0x00000000006aea70
+       0   0.0% 100.0%       77 100.0% 0x0000000000d392bc
+       0   0.0% 100.0%       77 100.0% 0x0000000000d58701
+       0   0.0% 100.0%       13  16.9% R::dpois (inline)
+       0   0.0% 100.0%       10  13.0% Rcpp::Matrix::ncol (inline)
+       0   0.0% 100.0%        6   7.8% Rcpp::Matrix::operator (inline)
+       0   0.0% 100.0%        6   7.8% Rcpp::MatrixColumn::MatrixColumn (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::Vector::Vector (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::Vector::assign_object (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::Vector::assign_sugar_expression (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::Vector::import_expression (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::Vector::init (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::Vector::operator= (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::clone (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::internal::r_init_vector
+       0   0.0% 100.0%        2   2.6% Rcpp::operator/ (inline)
+       0   0.0% 100.0%        9  11.7% Rcpp::sample (inline)
+       0   0.0% 100.0%        1   1.3% Rcpp::sugar::Divides_Vector_Primitive::operator[] (inline)
+       0   0.0% 100.0%        5   6.5% Rcpp::sugar::Lazy::operator double (inline)
+       0   0.0% 100.0%        2   2.6% Rcpp::sugar::SampleReplace (inline)
+       0   0.0% 100.0%        5   6.5% Rcpp::sugar::Sum::get (inline)
+       0   0.0% 100.0%        6   7.8% Rcpp::sugar::Vectorized::operator[] (inline)
+       0   0.0% 100.0%       77 100.0% Rf_ReplIteration
+       0   0.0% 100.0%       77 100.0% Rf_applyClosure
+       0   0.0% 100.0%        1   1.3% Rf_dpois
+       0   0.0% 100.0%        1   1.3% Rf_duplicate
+       0   0.0% 100.0%       77 100.0% Rf_eval
+       0   0.0% 100.0%        7   9.1% Rf_isMatrix
+       0   0.0% 100.0%        1   1.3% Rf_lazy_duplicate
+       0   0.0% 100.0%       77 100.0% _ParticleFilter_particleFilter
+       0   0.0% 100.0%        1   1.3% __GI___exp (inline)
+       0   0.0% 100.0%        1   1.3% __exp1
+       0   0.0% 100.0%        1   1.3% __ieee754_exp_avx (inline)
+       0   0.0% 100.0%        1   1.3% __ieee754_log_avx (inline)
+       0   0.0% 100.0%        1   1.3% __ieee754_pow_sse2 (inline)
+       0   0.0% 100.0%       77 100.0% __libc_start_main
+       0   0.0% 100.0%        1   1.3% __log (inline)
+       0   0.0% 100.0%        1   1.3% __pow (inline)
+       0   0.0% 100.0%        1   1.3% __round (inline)
+       0   0.0% 100.0%       10  13.0% boost::random::binomial_distribution::binomial_distribution (inline)
+       0   0.0% 100.0%        4   5.2% boost::random::detail::new_uniform_01::operator (inline)
+       0   0.0% 100.0%        3   3.9% computeLikelihood
+       0   0.0% 100.0%       77 100.0% do_Rprof
+       0   0.0% 100.0%        1   1.3% initialiseVariables
+       0   0.0% 100.0%        1   1.3% libc_feholdsetround_sse_ctx (inline)
+       0   0.0% 100.0%        3   3.9% normaliseWeights
+       0   0.0% 100.0%        3   3.9% optif9
+       0   0.0% 100.0%       77 100.0% particleFilter
+       0   0.0% 100.0%       30  39.0% propagateParticles
+       0   0.0% 100.0%       23  29.9% resampleParticles
+       0   0.0% 100.0%       77 100.0% run_Rmainloop
+       0   0.0% 100.0%        1   1.3% std::fill (inline)
+       0   0.0% 100.0%       15  19.5% weightParticles

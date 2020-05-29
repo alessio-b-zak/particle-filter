@@ -9,7 +9,50 @@ output: pdf_document
 library(RcppArmadillo)
 library(Rcpp)
 library(pomp)
+library(ParticleFilter)
 ```
+
+```{r}
+library(pomp)
+
+sir_step <- pomp::Csnippet("
+  double N = 763;
+  double dN_SI = rbinom(S,1-exp(-(Beta*I*dt)/N));
+  double dN_IR = rbinom(I,1-exp(-gamma*dt));
+  S -= dN_SI;
+  I += dN_SI - dN_IR;
+  R += dN_IR;
+")
+
+rmeas  <- pomp::Csnippet("B = rpois(rho * I+1e-6);")
+
+dmeas <- pomp::Csnippet("
+  lik = dpois(B, rho*I+1e-6, give_log);
+")
+  
+sir_init <- pomp::Csnippet("
+  S = 762;
+  I = 1;
+  R = 0;
+")
+
+sir <- pomp(subset(bsflu, select=-C),
+     times="day", 
+     t0=0, 
+     rprocess=euler(sir_step, delta.t=1), 
+     rinit = sir_init, 
+     rmeasure= rmeas, 
+     dmeasure=dmeas,
+     statenames=c("S", "I", "R"),
+     paramnames = c("Beta", "gamma", "rho")
+   )
+```
+
+```{r}
+pf <-  logLik(pfilter(sir, Np=1000, params=c(Beta=1, rho=1, gamma=1)))
+```
+
+
 
 Generate data
 ```{r}
@@ -24,20 +67,49 @@ params <- c(n, 1, 1, 1, 1)
 ```
 
 ```{r}
-sourceCpp("/home/alessio/Documents/uni/phd/sc2/particle-filter/particle.cpp")
-sourceCpp("/home/alessio/Documents/uni/phd/sc2/particle-filter/particlepar.cpp")
+#sourceCpp("/home/alessio/Documents/uni/phd/sc2/particle-filter/particle.cpp")
+#sourceCpp("/home/alessio/Documents/uni/phd/sc2/particle-filter/particlepar.cpp")
 ```
+
+
+```{r}
+ParticleFilter::start_profiler("/tpm/prof.out")
+particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+stop_profiler()
+```
+
+
+
+```{r}
+#particleFilterCppPar(bsflu$B, params, nparticles, initial_state)
+ 
+#p <- vector()
+q <- vector()
+#v <- vector()
+for(i in 2:10000){
+#  p[[i]] <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+  q[[i]] <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+#  v[[i]] <- logLik(pfilter(sir, Np=nparticles, params=c(Beta=1, rho=1, gamma=1)))
+}
+#par(mfrow=c(2,1))
+plot(density(q), main="dqrng")
+#plot(density(p), main="R API")
+```
+
   
 ```{r}
 q <- vector()
 p <- vector()
-for(i in 1:100){
+for(i in 1:3000){
   q[[i]] <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
   p[[i]] <- particleFilterCppPar(bsflu$B, params, nparticles, initial_state)
 }
 par(mfrow=c(2,1))
 plot(density(q))
 plot(density(p))
+```
+```{r}
+particleFilterCppPar(bsflu$B, params, nparticles, initial_state)
 ```
 
 ```{r}

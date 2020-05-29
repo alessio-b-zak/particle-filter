@@ -1,0 +1,6 @@
+1) Original log version timings:
+            expr      min       lq     mean   median       uq     max neval
+ pfCpp(100, 100) 64.95731 67.71322 73.33487 68.66291 72.86399 245.9077   100
+
+2) Instantiating binomial once
+ pfCpp(100, 100) 65.09628 66.70375 68.13498 67.18883 68.13749 89.10331   100
