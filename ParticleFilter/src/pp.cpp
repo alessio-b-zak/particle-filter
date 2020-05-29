@@ -13,7 +13,8 @@ using binomial = boost::random::binomial_distribution<int>;
 
 void resampleParticles(Rcpp::NumericMatrix& rParticles,
                        Rcpp::NumericMatrix& particles,
-                       Rcpp::NumericVector& weights){
+                       Rcpp::NumericVector& weights,
+                       int n_particles){
   // Rcout << "num particles: " << particles.ncol() << "\n";
   // int zcount = 0;
   // for(int i = 0; i < particles.ncol() ; i++) {
@@ -22,8 +23,8 @@ void resampleParticles(Rcpp::NumericMatrix& rParticles,
   //   }
   // }
   // Rcout << "num zero weights: " << zcount << "\n";
-  Rcpp::IntegerVector indices = Rcpp::sample(particles.ncol(),particles.ncol(), true, weights, false);
-  for(int i = 0; i < particles.ncol() ; i++) {
+  Rcpp::IntegerVector indices = Rcpp::sample(n_particles, n_particles, true, weights, false);
+  for(int i = 0; i < n_particles ; i++) {
     rParticles(_, i) = particles(_,indices(i));
   }
 }
@@ -72,9 +73,9 @@ void propagateParticles(RcppParallel::RMatrix<double>& particles,
                         RcppParallel::RMatrix<double>& resampledParticles,
                         RcppParallel::RVector<double>& params,
                         sitmo::prng_engine& engine,
-                        binomial& transitions){
-  //loop through each particle and run single timestep obs
-  for(int i = 0; i < particles.ncol(); i++) {
+                        binomial transitions,
+                        int n_particles){ //loop through each particle and run single timestep obs
+  for(int i = 0; i < n_particles; i++) {
       simulateTransition(particles.column(i), resampledParticles.column(i), params, engine, transitions);
   }
 }
@@ -149,14 +150,14 @@ double particleFilter(Rcpp::NumericVector y,
   initialiseVariables(resampledParticles, initialState);
 
   for(int t = 0; t < n_obs; t++) {
-    propagateParticles(oParticles, oRParticles, oParams, engine, transitions);
+    propagateParticles(oParticles, oRParticles, oParams, engine, transitions, n_particles);
 
     weightParticles(y[t], weights, particles, params );
     lWeightsMax = Rcpp::max(weights);
     tWeights = weights - lWeightsMax;
 
     normaliseWeights(tWeights, nWeights);
-    resampleParticles(resampledParticles, particles, nWeights);
+    resampleParticles(resampledParticles, particles, nWeights, n_particles);
     double ll = computeLikelihood(tWeights, lWeightsMax, n_particles);
     logLikelihood += ll;
   }

@@ -59,6 +59,7 @@ void simulateTransition(RcppParallel::RMatrix<double>::Column particle,
     R += dN_IR;
   }
 
+
   particle[0] = S;
   particle[1] = I;
   particle[2] = R;

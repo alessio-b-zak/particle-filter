@@ -4,13 +4,17 @@
 #include <RcppParallel.h>
 #include <dqrng_distribution.h>
 #include <boost/random/binomial_distribution.hpp>
+#include <boost/random/poisson_distribution.hpp>
 #include <xoshiro.h>
 #include <omp.h>
 using namespace arma;
 using namespace Rcpp;
+using binomial = boost::random::binomial_distribution<int>;
+using poisson = boost::random::poisson_distribution<int>;
 
 
 // [[Rcpp::depends(RcppParallel)]]
+// [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::plugins(openmp)]]
 // [[Rcpp::depends(dqrng)]]
@@ -62,8 +66,14 @@ void simulateTransition(RcppParallel::RMatrix<double>::Column particle,
     boost::random::binomial_distribution<int> distIR(I, p_IR);
     auto genIR = std::bind(distIR, std::ref(lrng));
 
-    int dN_SI = genSI(); 
+    // binomial d;
+
+    int dN_SI = genSI();
     int dN_IR = genIR();
+
+    // d(lrng, binomial::param_type(S, p_SI));
+    // d(lrng, binomial::param_type(I, p_IR));
+
     // Rcout << "iteration " << i << "dN_IR = "  << dN_IR << "\n";
     // Rcout << "iteration " << i << "dN_SI = "  << dN_SI << "\n";
 
@@ -82,22 +92,23 @@ void propagateParticles(RcppParallel::RMatrix<double> particles,
                         RcppParallel::RVector<double> params,
                         dqrng::xoshiro256plus& rng){
   //loop through each particle and run single timestep obs
-  #pragma omp parallel 
-  {
+   #pragma omp parallel 
+   {
     dqrng::xoshiro256plus lrng(rng);
     lrng.jump(omp_get_thread_num() + 1);
 
-  #pragma omp for
+   #pragma omp for
     for(int i = 0; i < particles.ncol(); i++) {
-        simulateTransition(particles.column(i), resampledParticles.column(i), params, lrng);
+        simulateTransition(particles.column(i), resampledParticles.column(i), params, rng);
     }
-  }
+   }
 }
 
 void weightParticles(double y,
                      Rcpp::NumericVector& weights,
                      Rcpp::NumericMatrix& particles,
-                     Rcpp::NumericVector& params){
+                     Rcpp::NumericVector& params,
+                     dqrng::xoshiro256plus& rng){
   for(int i = 0; i < weights.size(); i++) {
     Rcpp::NumericMatrix::Column states = particles(_,i);
     weights[i] = R::dpois(y, params[3] * states[1], 0);
@@ -142,13 +153,17 @@ double particleFilter(Rcpp::NumericVector y,
   RcppParallel::RVector<double> oWeights(weights);
   RcppParallel::RVector<double> oParams(params);
 
-  dqrng::xoshiro256plus rng(1);
+  dqrng::xoshiro256plus rng(42);
 
   initialiseVariables(resampledParticles, initialState);
+//   propagateParticles(oParticles, oRParticles, oParams, rng);
+//   weightParticles(y[0], weights, particles, params);
+//   resampleParticles(resampledParticles, particles, weights);
+//   logLikelihood += computeLikelihood(weights);
 
  for(int t = 0; t < n_obs; t++) {
    propagateParticles(oParticles, oRParticles, oParams, rng);
-   weightParticles(y[t], weights, particles, params);
+   weightParticles(y[t], weights, particles, params, rng);
    resampleParticles(resampledParticles, particles, weights);
    logLikelihood += computeLikelihood(weights);
  }

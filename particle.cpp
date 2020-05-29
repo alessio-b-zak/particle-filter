@@ -106,7 +106,11 @@ double particleFilter(Rcpp::NumericVector y,
   Rcpp::NumericMatrix particles(3, n_particles);
   Rcpp::NumericMatrix resampledParticles(3, n_particles);
   Rcpp::NumericVector weights(n_particles);
+  Rcpp::NumericVector nWeights(n_particles);
+  Rcpp::NumericVector tWeights(n_particles);
+
   initialiseVariables(resampledParticles, initialState);
+
 
   for(int t = 0; t < n_obs; t++) {
     propagateParticles(particles, resampledParticles, params);
