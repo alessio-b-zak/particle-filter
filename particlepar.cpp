@@ -1,9 +1,20 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
 #include <RcppArmadilloExtensions/sample.h>
+#include <RcppParallel.h>
+#include <dqrng_distribution.h>
+#include <boost/random/binomial_distribution.hpp>
+#include <xoshiro.h>
+#include <omp.h>
 using namespace arma;
 using namespace Rcpp;
 
+
+// [[Rcpp::depends(RcppParallel)]]
+// [[Rcpp::depends(BH)]]
+// [[Rcpp::plugins(openmp)]]
+// [[Rcpp::depends(dqrng)]]
+// [[Rcpp::depends(sitmo)]]
 
 void resampleParticles(Rcpp::NumericMatrix& rParticles,
                        Rcpp::NumericMatrix& particles,
@@ -28,21 +39,33 @@ void initialiseVariables(Rcpp::NumericMatrix& resampledParticles, Rcpp::NumericV
   }
 }
 
-void simulateTransition(Rcpp::NumericMatrix::Column particle,
-                        Rcpp::NumericMatrix::Column rParticle,
-                        Rcpp::NumericVector& params)
+void simulateTransition(RcppParallel::RMatrix<double>::Column particle,
+                        RcppParallel::RMatrix<double>::Column rParticle,
+                        RcppParallel::RVector<double> params,
+                        dqrng::xoshiro256plus& lrng)
   {
   int ntrans = (int) 1 / params[1];
   int S = rParticle[0];
   int I = rParticle[1];
   int R = rParticle[2];
 
+//   Rcout << "S " << S  << "\n";
+//   Rcout << "I " << I  << "\n";
+//   Rcout << "R " << R  << "\n";
   for(int i = 0 ; i < ntrans ; i++) {
     double p_SI = 1 - exp(-(params[2] * I * params[1])/params[0]);
     double p_IR = 1 - exp(-params[4] * params[1]);
+    
+    boost::random::binomial_distribution<int> distSI(S, p_SI);
+    auto genSI = std::bind(distSI, std::ref(lrng));
 
-    int dN_SI = R::rbinom(S, p_SI);
-    int dN_IR = R::rbinom(I, p_IR);
+    boost::random::binomial_distribution<int> distIR(I, p_IR);
+    auto genIR = std::bind(distIR, std::ref(lrng));
+
+    int dN_SI = genSI(); 
+    int dN_IR = genIR();
+    // Rcout << "iteration " << i << "dN_IR = "  << dN_IR << "\n";
+    // Rcout << "iteration " << i << "dN_SI = "  << dN_SI << "\n";
 
     S -= dN_SI;
     I += (dN_SI - dN_IR);
@@ -54,12 +77,20 @@ void simulateTransition(Rcpp::NumericMatrix::Column particle,
   particle[2] = R;
 }
 
-void propagateParticles(Rcpp::NumericMatrix& particles,
-                        Rcpp::NumericMatrix& resampledParticles,
-                        Rcpp::NumericVector& params){
+void propagateParticles(RcppParallel::RMatrix<double> particles,
+                        RcppParallel::RMatrix<double> resampledParticles,
+                        RcppParallel::RVector<double> params,
+                        dqrng::xoshiro256plus& rng){
   //loop through each particle and run single timestep obs
-   for(int i = 0; i < particles.ncol(); i++) {
-      simulateTransition(particles(_,i), resampledParticles(_,i), params);
+  #pragma omp parallel 
+  {
+    dqrng::xoshiro256plus lrng(rng);
+    lrng.jump(omp_get_thread_num() + 1);
+
+  #pragma omp for
+    for(int i = 0; i < particles.ncol(); i++) {
+        simulateTransition(particles.column(i), resampledParticles.column(i), params, lrng);
+    }
   }
 }
 
@@ -71,12 +102,12 @@ void weightParticles(double y,
     Rcpp::NumericMatrix::Column states = particles(_,i);
     weights[i] = R::dpois(y, params[3] * states[1], 0);
     //  if(weights[i]==0) {
-    //  Rcout << "----" << "\n";
-    //  Rcout << "rho is: " << params[3] << "\n";
-    //  Rcout << "I is: " << states[1] << "\n";
-    //  Rcout << "y is: " << y << "\n"; 
-    //  Rcout << "----" << "\n";
-    //  }
+    // weights[i] = R::dpois(y, params[3] * states[1], 0);
+    // Rcout << "rho is: " << params[3] << "\n";
+    // Rcout << "I is: " << states[1] << "\n";
+    // Rcout << "y is: " << y << "\n"; 
+    // Rcout << "----" << "\n";
+//   }
   }
 }
 
@@ -88,7 +119,7 @@ double computeLikelihood(Rcpp::NumericVector& weights){
 // Particle filter for sir model
 // Param vectors take form [N, dt, beta, rho, gamma]
 // State vectors take  form [S, I , R]
-// [[Rcpp::export(name=particleFilterCpp)]]
+// [[Rcpp::export(name=particleFilterCppPar)]]
 double particleFilter(Rcpp::NumericVector y,
                     Rcpp::NumericVector params,
                     int n_particles,
@@ -104,16 +135,23 @@ double particleFilter(Rcpp::NumericVector y,
 
   // Create Procedure Variables
   Rcpp::NumericMatrix particles(3, n_particles);
+  RcppParallel::RMatrix<double> oParticles(particles);
   Rcpp::NumericMatrix resampledParticles(3, n_particles);
+  RcppParallel::RMatrix<double> oRParticles(resampledParticles);
   Rcpp::NumericVector weights(n_particles);
+  RcppParallel::RVector<double> oWeights(weights);
+  RcppParallel::RVector<double> oParams(params);
+
+  dqrng::xoshiro256plus rng(1);
+
   initialiseVariables(resampledParticles, initialState);
 
-  for(int t = 0; t < n_obs; t++) {
-    propagateParticles(particles, resampledParticles, params);
-    weightParticles(y[t], weights, particles, params);
-    resampleParticles(resampledParticles, particles, weights);
-    logLikelihood += computeLikelihood(weights);
-  }
+ for(int t = 0; t < n_obs; t++) {
+   propagateParticles(oParticles, oRParticles, oParams, rng);
+   weightParticles(y[t], weights, particles, params);
+   resampleParticles(resampledParticles, particles, weights);
+   logLikelihood += computeLikelihood(weights);
+ }
 
   return logLikelihood;
 }
