@@ -1,1 +1,2 @@
-PKG_LIBS = -lprofiler
+PKG_LIBS = -lprofiler -fopenmp
+PKG_CXXFLAGS = -fopenmp

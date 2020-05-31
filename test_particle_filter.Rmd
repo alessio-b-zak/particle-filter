@@ -61,7 +61,7 @@ n <- 763
 #y <- sample.int(100, n, replace = TRUE)
 #df <- data.frame(B=y, tim = seq(n))
 
-nparticles <-  100000
+nparticles <-  10000000
 initial_state <- c(n-1, 1, 0)
 params <- c(n, 1, 1, 1, 1)
 ```
@@ -73,7 +73,7 @@ params <- c(n, 1, 1, 1, 1)
 
 ```{r}
 start_profiler("/tmp/prof.out")
-particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+parParticleFilterCpp(bsflu$B, params, nparticles, initial_state, 4)
 stop_profiler()
 ```
 
@@ -84,15 +84,18 @@ stop_profiler()
  
 #p <- vector()
 q <- vector()
+t <- vector()
 #v <- vector()
 for(i in 1:100){
 #  p[[i]] <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
-  q[[i]] <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+#  q[[i]] <- particleFilterCpp(bsflu$B, params, nparticles, initial_state)
+   t[[i]] <- parParticleFilterCpp(bsflu$B, params, nparticles, initial_state, 3)
 #  v[[i]] <- logLik(pfilter(sir, Np=nparticles, params=c(Beta=1, rho=1, gamma=1)))
 }
 #par(mfrow=c(2,1))
-plot(density(q), main="dqrng")
+plot(density(t), main="dqrng")
 #plot(density(p), main="R API")
+parParticleFilterCpp(bsflu$B, params, nparticles, initial_state, 3)
 ```
 
   
@@ -132,7 +135,7 @@ pfCpp <- function(n, nparticles) {
 pfCppPar <- function(n, nparticles) {
   v <- vector()
   for(i in 1:n) {
-    v[[i]] <- particleFilterCppPar(pomp::bsflu$B, params, nparticles, initial_state)
+    v[[i]] <- parParticleFilterCpp(pomp::bsflu$B, params, nparticles, initial_state, 2)
   }
   return(v)
 }
@@ -143,7 +146,7 @@ pfCppPar <- function(n, nparticles) {
 
 ```{r}
 library(microbenchmark)
-microbenchmark(pfCpp(100, 100))
+microbenchmark(pfCpp(1, 1000), pfCppPar(1,1000))
 ```
   
   
