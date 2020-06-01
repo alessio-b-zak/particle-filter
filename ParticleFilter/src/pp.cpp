@@ -35,8 +35,7 @@ void initialiseVariables(Rcpp::NumericMatrix& resampledParticles, Rcpp::NumericV
   }
 }
 
-void simulateTransition(RcppParallel::RMatrix<double>::Column particle,
-                        RcppParallel::RMatrix<double>::Column rParticle,
+void simulateTransition(RcppParallel::RMatrix<double>::Column particle, RcppParallel::RMatrix<double>::Column rParticle,
                         RcppParallel::RVector<double> params,
                         sitmo::prng_engine& engine,
                         binomial& transitions)

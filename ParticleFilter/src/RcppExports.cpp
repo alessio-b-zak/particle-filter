@@ -5,6 +5,34 @@
 
 using namespace Rcpp;
 
+// nonParticleFilter
+double nonParticleFilter(Rcpp::NumericVector y, Rcpp::NumericVector params, int n_particles, Rcpp::NumericVector initialState);
+RcppExport SEXP _ParticleFilter_nonParticleFilter(SEXP ySEXP, SEXP paramsSEXP, SEXP n_particlesSEXP, SEXP initialStateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< int >::type n_particles(n_particlesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type initialState(initialStateSEXP);
+    rcpp_result_gen = Rcpp::wrap(nonParticleFilter(y, params, n_particles, initialState));
+    return rcpp_result_gen;
+END_RCPP
+}
+// incParticleFilter
+double incParticleFilter(Rcpp::NumericVector y, Rcpp::NumericVector params, int n_particles, Rcpp::NumericVector initialState);
+RcppExport SEXP _ParticleFilter_incParticleFilter(SEXP ySEXP, SEXP paramsSEXP, SEXP n_particlesSEXP, SEXP initialStateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< int >::type n_particles(n_particlesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type initialState(initialStateSEXP);
+    rcpp_result_gen = Rcpp::wrap(incParticleFilter(y, params, n_particles, initialState));
+    return rcpp_result_gen;
+END_RCPP
+}
 // parParticleFilter
 double parParticleFilter(Rcpp::NumericVector y, Rcpp::NumericVector params, int n_particles, Rcpp::NumericVector initialState, int ncores);
 RcppExport SEXP _ParticleFilter_parParticleFilter(SEXP ySEXP, SEXP paramsSEXP, SEXP n_particlesSEXP, SEXP initialStateSEXP, SEXP ncoresSEXP) {
@@ -55,12 +83,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// prParticleFilter
+double prParticleFilter(Rcpp::NumericVector y, Rcpp::NumericVector params, int n_particles, Rcpp::NumericVector initialState, int ncores);
+RcppExport SEXP _ParticleFilter_prParticleFilter(SEXP ySEXP, SEXP paramsSEXP, SEXP n_particlesSEXP, SEXP initialStateSEXP, SEXP ncoresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< int >::type n_particles(n_particlesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type initialState(initialStateSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(prParticleFilter(y, params, n_particles, initialState, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ParticleFilter_nonParticleFilter", (DL_FUNC) &_ParticleFilter_nonParticleFilter, 4},
+    {"_ParticleFilter_incParticleFilter", (DL_FUNC) &_ParticleFilter_incParticleFilter, 4},
     {"_ParticleFilter_parParticleFilter", (DL_FUNC) &_ParticleFilter_parParticleFilter, 5},
     {"_ParticleFilter_particleFilter", (DL_FUNC) &_ParticleFilter_particleFilter, 4},
     {"_ParticleFilter_start_profiler", (DL_FUNC) &_ParticleFilter_start_profiler, 1},
     {"_ParticleFilter_stop_profiler", (DL_FUNC) &_ParticleFilter_stop_profiler, 0},
+    {"_ParticleFilter_prParticleFilter", (DL_FUNC) &_ParticleFilter_prParticleFilter, 5},
     {NULL, NULL, 0}
 };
 

@@ -81,7 +81,11 @@ void parPropagateParticles(RcppParallel::RMatrix<double>& particles,
   {
     #pragma omp for
     for(int i = 0; i < particles.ncol(); i++) {
-        parSimulateTransition(particles.column(i), resampledParticles.column(i), params, engines[omp_get_thread_num()], transitions);
+        parSimulateTransition(particles.column(i), 
+        resampledParticles.column(i), 
+        params, 
+        engines[omp_get_thread_num()], 
+        transitions);
     }
   }
 }
